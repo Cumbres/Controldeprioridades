@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control de Prioridades - Cumbres de Quilpué</title>
+    <title>Panel de Tareas - Cumbres de Quilpué</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,46 +16,51 @@
     <style>
         body {
             font-family: 'Lato', sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f4f7f9;
         }
-        h1, h2, h3, h4, .tower-card-title {
+        h1, h2, h3, h4 {
             font-family: 'Poppins', sans-serif;
         }
         .task-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid transparent;
         }
         .task-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-        details summary::-webkit-details-marker {
-            display: none;
-        }
-        .tower-card summary, .task-card summary {
-            list-style: none;
-            cursor: pointer;
-        }
-        .tower-card summary {
-             transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .tower-card summary:hover {
-            transform: scale(1.05);
+            transform: translateY(-4px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
-        .details-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 1.25rem;
+            bottom: -1.25rem;
+            width: 2px;
+            background-color: #e5e7eb;
         }
-        details[open] .details-content {
-            max-height: 500px;
+        .timeline-item:last-child::before {
+            display: none;
         }
-        details[open].tower-card-details .details-content {
-            padding-top: 0.5rem;
+        .timeline-dot {
+            position: absolute;
+            left: 0.5rem;
+            top: 0.6rem;
         }
-        details[open].tower-card-details summary {
-             transform: scale(1.05);
-             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        .task-checkbox:checked + label {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .task-checkbox:checked + label .task-text{
+             color: #9ca3af;
+        }
+        .modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -65,350 +70,253 @@
         
         <!-- Cabecera -->
         <header class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">Panel de Control Estratégico</h1>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">Panel de Mando Interactivo</h1>
             <p class="mt-3 text-xl text-gray-500">Cumbres de Quilpué</p>
+            <p id="last-updated" class="mt-2 text-sm text-gray-400">Última actualización: 24 de Septiembre, 2025</p>
         </header>
 
-        <!-- Sección 1: Mapa de Prioridades de Mantenimiento -->
-        <section id="mapa-prioridades" class="mb-20">
-            <h2 class="text-3xl font-bold text-center mb-12">Mapa de Prioridades de Mantenimiento</h2>
-            
-            <div class="grid grid-cols-3 gap-4 sm:gap-5 max-w-xl mx-auto">
-                
-                <!-- Fila 1: Prioridad ROJA -->
-                <div class="tower-card" data-priority="red">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-red-500 text-white rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 7</h3>
-                            <span class="text-xs md:text-sm opacity-80">Prioridad Alta</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Adquirir guardacantos de goma para escaleras.</li>
-                                    <li>Revisar y cambiar cerámicas rotas/sopladas.</li>
-                                    <li>Pintar pisos de bodegas.</li>
-                                    <li>Reparar cajas eléctricas.</li>
-                                    <li>Levantar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                <div class="tower-card" data-priority="red">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-red-500 text-white rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 8</h3>
-                            <span class="text-xs md:text-sm opacity-80">Prioridad Alta</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Adquirir guardacantos de goma para escaleras.</li>
-                                    <li>Revisar y cambiar cerámicas rotas/sopladas.</li>
-                                    <li>Pintar pisos de bodegas.</li>
-                                    <li>Reparar cajas eléctricas.</li>
-                                    <li>Levantar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                <div class="tower-card" data-priority="red">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-red-500 text-white rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 9</h3>
-                            <span class="text-xs md:text-sm opacity-80">Prioridad Alta</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Adquirir guardacantos de goma para escaleras.</li>
-                                    <li>Revisar y cambiar cerámicas rotas/sopladas.</li>
-                                    <li>Pintar pisos de bodegas.</li>
-                                    <li>Reparar cajas eléctricas.</li>
-                                    <li>Levantar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                
-                <!-- Fila 2: Prioridad AMARILLA -->
-                <div class="tower-card" data-priority="yellow">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-yellow-400 text-gray-800 rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 1</h3>
-                            <span class="text-xs md:text-sm opacity-80">Prioridad Media</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Levantamiento de cerámicas sopladas/rotas.</li>
-                                    <li>Reparar cajas eléctricas (bodegas y pasillos).</li>
-                                    <li>Verificar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                <div class="tower-card" data-priority="yellow">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-yellow-400 text-gray-800 rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 2</h3>
-                            <span class="text-xs md:text-sm opacity-80">Prioridad Media</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Levantamiento de cerámicas sopladas/rotas.</li>
-                                    <li>Reparar cajas eléctricas (bodegas y pasillos).</li>
-                                    <li>Verificar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                <div class="tower-card" data-priority="yellow">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-yellow-400 text-gray-800 rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 3</h3>
-                            <span class="text-xs md:text-sm opacity-80">Prioridad Media</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Levantamiento de cerámicas sopladas/rotas.</li>
-                                    <li>Reparar cajas eléctricas (bodegas y pasillos).</li>
-                                    <li>Verificar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-
-                <!-- Fila 3: Prioridad AMARILLA y VERDE -->
-                <div class="tower-card" data-priority="yellow">
-                     <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-yellow-400 text-gray-800 rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 4</h3>
-                            <span class="text-xs md:text-sm font-semibold opacity-80">Post-Incendio</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Levantamiento de cerámicas sopladas/rotas.</li>
-                                    <li>Reparar cajas eléctricas (bodegas y pasillos).</li>
-                                    <li>Verificar y reportar otras observaciones.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                <div class="tower-card" data-priority="green">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-green-500 text-white rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 5</h3>
-                            <span class="text-xs md:text-sm opacity-80">Garantía</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Levantamiento y notificación a Galilea de cerámicas.</li>
-                                    <li>Levantamiento de cualquier desperfecto en garantía.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                <div class="tower-card" data-priority="green">
-                    <details class="tower-card-details">
-                        <summary class="w-full h-32 md:h-36 bg-green-500 text-white rounded-xl shadow-lg flex flex-col justify-center items-center p-2">
-                            <h3 class="tower-card-title text-2xl md:text-3xl font-bold">Torre 6</h3>
-                            <span class="text-xs md:text-sm opacity-80">Garantía</span>
-                        </summary>
-                        <div class="details-content">
-                            <div class="p-3 bg-white rounded-lg border">
-                                <h4 class="font-bold mb-2 text-sm">Plan de Acción:</h4>
-                                <ul class="list-disc list-inside text-xs space-y-1 text-gray-700">
-                                    <li>Levantamiento y notificación a Galilea de cerámicas.</li>
-                                    <li>Levantamiento de cualquier desperfecto en garantía.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-            </div>
-             <!-- Nota Importante -->
-            <div class="max-w-4xl mx-auto mt-16 bg-gray-800 text-white p-6 rounded-lg shadow-2xl flex items-center gap-5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 flex-shrink-0 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                <div>
-                    <h4 class="font-bold text-lg">Directriz Estratégica del Comité</h4>
-                    <p class="text-gray-300">No se autorizarán nuevos proyectos en áreas comunes (cancha, piletas, etc.) hasta finalizar los mantenimientos de prioridad ROJA y AMARILLA. El foco absoluto es la seguridad y recuperación de las zonas habitacionales.</p>
-                </div>
+        <!-- Mapa de Prioridades de Torres (Reincorporado) -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-center mb-6">Prioridades de Mantenimiento por Torre</h2>
+            <div class="grid grid-cols-3 md:grid-cols-9 gap-2 max-w-4xl mx-auto">
+                <!-- Rojas -->
+                <div class="h-20 bg-red-500 text-white rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T7</h4><span class="text-xs">Alta</span></div>
+                <div class="h-20 bg-red-500 text-white rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T8</h4><span class="text-xs">Alta</span></div>
+                <div class="h-20 bg-red-500 text-white rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T9</h4><span class="text-xs">Alta</span></div>
+                <!-- Amarillas -->
+                <div class="h-20 bg-yellow-400 text-gray-800 rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T1</h4><span class="text-xs">Media</span></div>
+                <div class="h-20 bg-yellow-400 text-gray-800 rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T2</h4><span class="text-xs">Media</span></div>
+                <div class="h-20 bg-yellow-400 text-gray-800 rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T3</h4><span class="text-xs">Media</span></div>
+                <div class="h-20 bg-yellow-400 text-gray-800 rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T4</h4><span class="text-xs">Post-Incendio</span></div>
+                <!-- Verdes -->
+                <div class="h-20 bg-green-500 text-white rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T5</h4><span class="text-xs">Garantía</span></div>
+                <div class="h-20 bg-green-500 text-white rounded-lg shadow flex flex-col justify-center items-center text-center p-1"><h4 class="font-bold text-lg">T6</h4><span class="text-xs">Garantía</span></div>
             </div>
         </section>
 
-        <!-- Sección 2: Gestiones Críticas para Administración -->
-        <section id="gestiones-criticas">
-            <h2 class="text-3xl font-bold text-center mb-12">Gestiones Críticas: Administración</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                 <!-- Tarea Card -->
-                <div class="task-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-                    <div class="p-6 flex-grow">
-                        <div class="flex justify-between items-start">
-                             <div>
-                                <span class="text-sm font-bold py-1 px-3 rounded-full bg-red-100 text-red-700">URGENTE</span>
-                                <span class="text-sm font-semibold py-1 px-3 rounded-full bg-gray-200 text-gray-700 ml-1">Límite: 15/08</span>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        </div>
-                        <h3 class="font-bold text-xl mt-4">Informe Técnico Torre 9</h3>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna Principal -->
+            <div class="lg:col-span-2 space-y-12">
+
+                <!-- TAREAS PRIORITARIAS -->
+                <section>
+                    <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>🔴 Tareas Prioritarias</span>
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task1" value="Pago emergencia química" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task1" class="task-text text-gray-700">Pago emergencia química</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task2" value="Comunicado emergencia química" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task2" class="task-text text-gray-700">Comunicado emergencia química</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task3" value="Sistema de 4x4 conserjería" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task3" class="task-text text-gray-700">Sistema de 4x4 conserjería</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task4" value="Trámite certificación de gas (Sellos)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task4" class="task-text text-gray-700">Trámite certificación de gas (Sellos)</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task5" value="Copia a comité de trámites JPL (Gas)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task5" class="task-text text-gray-700">Copia a comité de trámites JPL (Gas)</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task6" value="Solución definitiva portón vehicular" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task6" class="task-text text-gray-700">Solución definitiva portón vehicular</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task7" value="Término de trabajos eléctricos y entrega de documentos" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task7" class="task-text text-gray-700">Término de trabajos eléctricos y entrega de documentos</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task8" value="Inventario de equipos y materiales" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task8" class="task-text text-gray-700">Inventario de equipos y materiales</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task9" value="Protectores metálicos para cámaras del portón" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task9" class="task-text text-gray-700">Protectores metálicos para cámaras del portón</label></div>
+                        <div class="task-card border-l-red-500 p-4 flex items-center"><input type="checkbox" id="task10" value="Reparación de silla de conserjería" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task10" class="task-text text-gray-700">Reparación de silla de conserjería</label></div>
                     </div>
-                    <details>
-                        <summary class="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 text-sm font-semibold text-center text-gray-600">Ver Plan de Acción</summary>
-                        <div class="details-content px-6 pb-6 bg-gray-50 text-gray-700">
-                            <p class="text-sm">La falta de este informe impide cerrar el siniestro de la rotura de cañería con Galilea, bloqueando reembolsos o acciones legales. Se debe exigir a la empresa ejecutora la entrega inmediata del documento.</p>
-                        </div>
-                    </details>
-                </div>
-                 <!-- Tarea Card -->
-                <div class="task-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-                    <div class="p-6 flex-grow">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-sm font-bold py-1 px-3 rounded-full bg-red-100 text-red-700">URGENTE</span>
-                                <span class="text-sm font-semibold py-1 px-3 rounded-full bg-gray-200 text-gray-700 ml-1">Límite: 15/08</span>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                        </div>
-                        <h3 class="font-bold text-xl mt-4">Recepción Trabajos Portón</h3>
+                </section>
+
+                <!-- TRABAJOS NORMALES -->
+                <section>
+                    <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <span>🟠 Trabajos Normales</span>
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="task-card border-l-orange-500 p-4 flex items-center"><input type="checkbox" id="task11" value="Compra e instalación de puerta (conserjería)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task11" class="task-text text-gray-700">Compra e instalación de puerta (conserjería)</label></div>
+                        <div class="task-card border-l-orange-500 p-4 flex items-center"><input type="checkbox" id="task12" value="Compra de individuales, tazas y vasos" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task12" class="task-text text-gray-700">Compra de individuales, tazas y vasos</label></div>
+                        <div class="task-card border-l-orange-500 p-4 flex items-center"><input type="checkbox" id="task13" value="Compra de vidrio o cubre mesa de reuniones" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task13" class="task-text text-gray-700">Compra de vidrio o cubre mesa de reuniones</label></div>
+                        <div class="task-card border-l-orange-500 p-4 flex items-center"><input type="checkbox" id="task14" value="Cotizaciones para sistema de regadío" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task14" class="task-text text-gray-700">Cotizaciones para sistema de regadío</label></div>
+                        <div class="task-card border-l-orange-500 p-4 flex items-center"><input type="checkbox" id="task15" value="Compra de pintura para conserjería" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task15" class="task-text text-gray-700">Compra de pintura para conserjería</label></div>
+                        <div class="task-card border-l-orange-500 p-4 flex items-center"><input type="checkbox" id="task16" value="Compra de topes para puertas y muebles" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task16" class="task-text text-gray-700">Compra de topes para puertas y muebles</label></div>
                     </div>
-                    <details>
-                        <summary class="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 text-sm font-semibold text-center text-gray-600">Ver Plan de Acción</summary>
-                        <div class="details-content px-6 pb-6 bg-gray-50 text-gray-700">
-                            <p class="text-sm">El portón sigue con fallas operativas. Se debe obtener un detalle de los servicios pagados y un plan de reparación definitivo antes de recepcionar el trabajo o autorizar nuevos pagos.</p>
+                </section>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                     <!-- PENDIENTES COMUNIDADFELIZ -->
+                    <section>
+                        <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m-3.97-1.03a9 9 0 0111.94 0m0 0a9 9 0 00-11.94 0m5.97 5.97a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            <span>🌐 ComunidadFeliz</span>
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="task-card border-l-sky-500 p-4 flex items-center"><input type="checkbox" id="task17" value="Revisar y configurar módulo de paquetería" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task17" class="task-text text-gray-700">Revisar y configurar módulo de paquetería</label></div>
+                            <div class="task-card border-l-sky-500 p-4 flex items-center"><input type="checkbox" id="task18" value="Cerrar incidentes antiguos (50 pendientes)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task18" class="task-text text-gray-700">Cerrar incidentes antiguos (50 pendientes)</label></div>
                         </div>
-                    </details>
-                </div>
-                <!-- Tarea Card -->
-                <div class="task-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-                    <div class="p-6 flex-grow">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-sm font-bold py-1 px-3 rounded-full bg-red-100 text-red-700">URGENTE</span>
-                                <span class="text-sm font-semibold py-1 px-3 rounded-full bg-gray-200 text-gray-700 ml-1">Límite: 15/08</span>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.657 7.343A8 8 0 0117.657 18.657z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
+                    </section>
+
+                    <!-- TRABAJOS MANTENCIÓN -->
+                    <section>
+                         <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            <span>🛠 Mantención</span>
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="task-card border-l-cyan-500 p-4 flex items-center"><input type="checkbox" id="task19" value="Instalar cinta reflectante en portón" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task19" class="task-text text-gray-700">Instalar cinta reflectante en portón</label></div>
+                            <div class="task-card border-l-cyan-500 p-4 flex items-center"><input type="checkbox" id="task20" value="Instalar hitos viales en acceso" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task20" class="task-text text-gray-700">Instalar hitos viales en acceso</label></div>
+                            <div class="task-card border-l-cyan-500 p-4 flex items-center"><input type="checkbox" id="task21" value="Pintar bicicleteros (Celeste)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task21" class="task-text text-gray-700">Pintar bicicleteros (Celeste)</label></div>
+                            <div class="task-card border-l-cyan-500 p-4 flex items-center"><input type="checkbox" id="task22" value="Reparar paredes de bodegas (T 7-8-9)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task22" class="task-text text-gray-700">Reparar paredes de bodegas (T 7-8-9)</label></div>
+                            <div class="task-card border-l-cyan-500 p-4 flex items-center"><input type="checkbox" id="task23" value="Desmalezado alrededor de generador" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="task23" class="task-text text-gray-700">Desmalezado alrededor de generador</label></div>
                         </div>
-                        <h3 class="font-bold text-xl mt-4">Cierre Emergencia Química</h3>
-                    </div>
-                    <details>
-                        <summary class="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 text-sm font-semibold text-center text-gray-600">Ver Plan de Acción</summary>
-                        <div class="details-content px-6 pb-6 bg-gray-50 text-gray-700">
-                            <p class="text-sm">El pago a la empresa de limpieza está retenido por falta de finiquito. Se debe gestionar el cierre del caso; de lo contrario, se procederá con las medidas indicadas para asegurar el cobro.</p>
-                        </div>
-                    </details>
-                </div>
-                 <!-- Tarea Card -->
-                <div class="task-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-                    <div class="p-6 flex-grow">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-sm font-bold py-1 px-3 rounded-full bg-yellow-100 text-yellow-700">PENDIENTE</span>
-                                <span class="text-sm font-semibold py-1 px-3 rounded-full bg-gray-200 text-gray-700 ml-1">Límite: 15/08</span>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                        </div>
-                        <h3 class="font-bold text-xl mt-4">Documentación Grupo Electrógeno</h3>
-                    </div>
-                     <details>
-                        <summary class="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 text-sm font-semibold text-center text-gray-600">Ver Plan de Acción</summary>
-                        <div class="details-content px-6 pb-6 bg-gray-50 text-gray-700">
-                            <p class="text-sm">La ausencia de manuales y diagramas representa un riesgo de seguridad. El personal no puede operar el equipo correctamente en una emergencia. Se debe exigir la entrega a la empresa responsable.</p>
-                        </div>
-                    </details>
-                </div>
-                 <!-- Tarea Card -->
-                <div class="task-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-                    <div class="p-6 flex-grow">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-sm font-bold py-1 px-3 rounded-full bg-yellow-100 text-yellow-700">PENDIENTE</span>
-                                <span class="text-sm font-semibold py-1 px-3 rounded-full bg-gray-200 text-gray-700 ml-1">Límite: 15/08</span>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m-6 3l6-3m0 10V4" /></svg>
-                        </div>
-                        <h3 class="font-bold text-xl mt-4">Plan de Emergencia</h3>
-                    </div>
-                     <details>
-                        <summary class="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 text-sm font-semibold text-center text-gray-600">Ver Plan de Acción</summary>
-                        <div class="details-content px-6 pb-6 bg-gray-50 text-gray-700">
-                            <p class="text-sm">La comunidad carece de un plan de emergencia y evacuación formal. Esto es una obligación legal y una necesidad de seguridad. Se debe fijar una fecha inamovible con la empresa para su entrega y los simulacros.</p>
-                        </div>
-                    </details>
-                </div>
-                <!-- Tarea Card -->
-                <div class="task-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-                    <div class="p-6 flex-grow">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-sm font-bold py-1 px-3 rounded-full bg-yellow-100 text-yellow-700">PENDIENTE</span>
-                                <span class="text-sm font-semibold py-1 px-3 rounded-full bg-gray-200 text-gray-700 ml-1">Límite: 15/08</span>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547a2 2 0 00-.547 1.806l.477 2.387a6 6 0 00.517 3.86l.158.318a6 6 0 003.86.517l2.387.477a2 2 0 001.806-.547a2 2 0 00.547-1.806l-.477-2.387a6 6 0 00-.517-3.86l-.158-.318z" /></svg>
-                        </div>
-                        <h3 class="font-bold text-xl mt-4">Obras de Conserjería</h3>
-                    </div>
-                     <details>
-                        <summary class="cursor-pointer bg-gray-50 hover:bg-gray-100 p-3 text-sm font-semibold text-center text-gray-600">Ver Plan de Acción</summary>
-                        <div class="details-content px-6 pb-6 bg-gray-50 text-gray-700">
-                            <p class="text-sm">El retraso en la entrega de muebles y trabajos eléctricos afecta la operatividad de la conserjería. Se necesita un cronograma actualizado y una fecha de entrega final para recepcionar la obra y cerrar el proyecto.</p>
-                        </div>
-                    </details>
+                    </section>
                 </div>
             </div>
-        </section>
+
+            <!-- Columna Derecha -->
+            <aside class="space-y-12">
+                 <!-- EQUIPOS NO OPERATIVOS -->
+                <section>
+                    <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                        <span>❌️ Equipos No Operativos</span>
+                    </h2>
+                    <div class="bg-white p-4 rounded-lg shadow-sm space-y-3">
+                        <div class="flex items-center"><input type="checkbox" id="equip1" value="Reparación de Huellero" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip1" class="task-text text-gray-700">Huellero</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip2" value="Reparación de Citófono de conserjería" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip2" class="task-text text-gray-700">Citófono de conserjería</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip3" value="Reparación de Tablet" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip3" class="task-text text-gray-700">Tablet</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip4" value="Reparación de Cámaras generales (05)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip4" class="task-text text-gray-700">Cámaras generales (05)</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip5" value="Reparación de Cámaras portón (02)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip5" class="task-text text-gray-700">Cámaras portón (02)</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip6" value="Reparación de Baliza de acceso" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip6" class="task-text text-gray-700">Baliza de acceso</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip7" value="Reparación de Luces de acceso de conserjería (02)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip7" class="task-text text-gray-700">Luces de acceso de conserjería (02)</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="equip8" value="Reparación de Cargadores (tablet y celular)" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="equip8" class="task-text text-gray-700">Cargadores (tablet y celular)</label></div>
+                    </div>
+                </section>
+
+                <!-- EN REVISIÓN COMITÉ -->
+                <section>
+                    <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <span>🔸️ En Revisión Comité</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="task-card border-l-blue-500 p-4 flex items-center"><input type="checkbox" id="review1" value="Adquisición de nuevas gomas para torres" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="review1" class="task-text text-gray-700">Adquisición de nuevas gomas para torres</label></div>
+                        <div class="task-card border-l-blue-500 p-4 flex items-center"><input type="checkbox" id="review2" value="Adquisición de interruptores para accesos" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="review2" class="task-text text-gray-700">Adquisición de interruptores para accesos</label></div>
+                        <div class="task-card border-l-blue-500 p-4 flex items-center"><input type="checkbox" id="review3" value="Adquisición de alarmas de emergencia" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="review3" class="task-text text-gray-700">Adquisición de alarmas de emergencia</label></div>
+                        <div class="task-card border-l-blue-500 p-4 flex items-center"><input type="checkbox" id="review4" value="Cotización de nueva señalética" class="task-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3"><label for="review4" class="task-text text-gray-700">Cotización de nueva señalética</label></div>
+                    </div>
+                </section>
+                
+                 <!-- CUMPLIMIENTO DE FECHAS -->
+                <section>
+                    <h2 class="text-2xl font-bold flex items-center gap-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span>📅 Cumplimiento de Fechas</span>
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="relative timeline-item pl-8"><div class="timeline-dot h-4 w-4 bg-indigo-200 rounded-full ring-4 ring-white"></div><h4 class="font-bold">30 de cada mes</h4><p class="text-gray-600 text-sm">Emitir calendario de visitas Adm.</p></div>
+                        <div class="relative timeline-item pl-8"><div class="timeline-dot h-4 w-4 bg-indigo-200 rounded-full ring-4 ring-white"></div><h4 class="font-bold">05 de cada mes</h4><p class="text-gray-600 text-sm">Emitir GG.CC.</p></div>
+                        <div class="relative timeline-item pl-8"><div class="timeline-dot h-4 w-4 bg-indigo-200 rounded-full ring-4 ring-white"></div><h4 class="font-bold">10 de cada mes</h4><p class="text-gray-600 text-sm">Notificar a morosos.</p></div>
+                        <div class="relative timeline-item pl-8"><div class="timeline-dot h-4 w-4 bg-indigo-200 rounded-full ring-4 ring-white"></div><h4 class="font-bold">15 de cada mes</h4><p class="text-gray-600 text-sm">Corte de suministro a morosos.</p></div>
+                        <div class="relative timeline-item pl-8"><div class="timeline-dot h-4 w-4 bg-indigo-200 rounded-full ring-4 ring-white"></div><h4 class="font-bold">Todos los Viernes</h4><p class="text-gray-600 text-sm">Informar avance de trabajos.</p></div>
+                        <div class="relative timeline-item pl-8"><div class="timeline-dot h-4 w-4 bg-indigo-200 rounded-full ring-4 ring-white"></div><h4 class="font-bold">Lunes y Viernes</h4><p class="text-gray-600 text-sm">Mayordomo revisa dependencias.</p></div>
+                    </div>
+                </section>
+            </aside>
+        </div>
 
         <!-- Pie de página -->
         <footer class="text-center mt-20 border-t pt-8">
-            <p class="text-sm text-gray-500">&copy; 2025 Comité de Administración Cumbres de Quilpué.</p>
+            <p class="text-sm text-gray-500">&copy; 2025 Comité de Administración Cumbres de Quilpué. Una comunidad comprometida con la acción.</p>
         </footer>
 
     </div>
-    <script>
-        // Cierra otros <details> cuando uno se abre en el mapa de prioridades
-        const allTowerDetails = document.querySelectorAll('.tower-card details');
-        allTowerDetails.forEach(details => {
-            details.addEventListener('toggle', event => {
-                if (details.open) {
-                    allTowerDetails.forEach(d => {
-                        if (d !== details) {
-                            d.removeAttribute('open');
-                        }
-                    });
-                }
-            });
-        });
 
-        // Cierra otros <details> en las tarjetas de tareas de administración
-        const allTaskDetails = document.querySelectorAll('.task-card details');
-        allTaskDetails.forEach(details => {
-            details.addEventListener('toggle', event => {
-                if (details.open) {
-                    allTaskDetails.forEach(d => {
-                        if (d !== details) {
-                            d.removeAttribute('open');
-                        }
+    <!-- Botón Flotante para Generar Reporte -->
+    <button id="generate-report-btn" class="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+    </button>
+    
+    <!-- Modal de Confirmación -->
+    <div id="report-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-backdrop opacity-0">
+        <div class="modal-content bg-white rounded-lg shadow-xl max-w-lg w-full p-6 opacity-0 transform -translate-y-10">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xl font-bold">Confirmar Reporte de Cumplimiento</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="mt-4">
+                <p id="modal-message" class="text-gray-700 mb-4"></p>
+                <ul id="selected-tasks-list" class="list-disc list-inside space-y-2 text-gray-600 max-h-60 overflow-y-auto"></ul>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="send-email-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Redactar Correo</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const generateReportBtn = document.getElementById('generate-report-btn');
+            const reportModal = document.getElementById('report-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const sendEmailBtn = document.getElementById('send-email-btn');
+            const modalMessage = document.getElementById('modal-message');
+            const selectedTasksList = document.getElementById('selected-tasks-list');
+            const modalContent = reportModal.querySelector('.modal-content');
+
+            const openModal = () => {
+                reportModal.classList.remove('hidden');
+                setTimeout(() => {
+                    reportModal.classList.remove('opacity-0');
+                    modalContent.classList.remove('opacity-0', '-translate-y-10');
+                }, 10);
+            };
+
+            const closeModal = () => {
+                modalContent.classList.add('opacity-0', '-translate-y-10');
+                reportModal.classList.add('opacity-0');
+                setTimeout(() => {
+                    reportModal.classList.add('hidden');
+                }, 300);
+            };
+
+            generateReportBtn.addEventListener('click', () => {
+                const checkedTasks = document.querySelectorAll('.task-checkbox:checked');
+                selectedTasksList.innerHTML = '';
+
+                if (checkedTasks.length === 0) {
+                    modalMessage.textContent = 'No ha seleccionado ninguna tarea para reportar. Por favor, marque al menos una casilla.';
+                    sendEmailBtn.classList.add('hidden');
+                } else {
+                    modalMessage.textContent = 'Se generará un correo para reportar el cumplimiento de las siguientes tareas:';
+                    checkedTasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.textContent = task.value;
+                        selectedTasksList.appendChild(li);
                     });
+                    sendEmailBtn.classList.remove('hidden');
+                }
+                openModal();
+            });
+
+            sendEmailBtn.addEventListener('click', () => {
+                const checkedTasks = document.querySelectorAll('.task-checkbox:checked');
+                const tasksValues = Array.from(checkedTasks).map(task => `- ${task.value}`);
+                
+                const today = new Date();
+                const dateString = today.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
+
+                const recipient = 'comitecumbresdequilpue@gmail.com';
+                const subject = `Reporte de Cumplimiento - ${dateString}`;
+                const body = `Estimado Comité,\n\nJunto con saludar, se informa que con fecha ${dateString} se ha dado cumplimiento a las siguientes tareas:\n\n${tasksValues.join('\n')}\n\nSaludos cordiales.`;
+                
+                const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                
+                window.location.href = mailtoLink;
+                
+                closeModal();
+            });
+
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            reportModal.addEventListener('click', (e) => {
+                if (e.target === reportModal) {
+                    closeModal();
                 }
             });
         });
