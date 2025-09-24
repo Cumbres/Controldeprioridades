@@ -197,13 +197,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
     </button>
     
-    <!-- Modal de Confirmación -->
+    <!-- Modal -->
     <div id="report-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-backdrop opacity-0">
         <div class="modal-content bg-white rounded-lg shadow-xl max-w-lg w-full p-6 opacity-0 transform -translate-y-10">
             <!-- Vista 1: Confirmación -->
             <div id="confirmation-view">
                 <div class="flex justify-between items-center border-b pb-3">
-                    <h3 class="text-xl font-bold">Confirmar Reporte de Cumplimiento</h3>
+                    <h3 class="text-xl font-bold">Confirmar Reporte</h3>
                     <button class="close-modal-btn text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
                 </div>
                 <div class="mt-4">
@@ -212,24 +212,24 @@
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
                     <button class="cancel-btn px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
-                    <button id="confirm-report-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Confirmar y Reportar</button>
+                    <button id="confirm-report-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Confirmar y Continuar</button>
                 </div>
             </div>
-            <!-- Vista 2: Fallback de Correo -->
-            <div id="email-fallback-view" class="hidden">
+            <!-- Vista 2: Redacción de Correo -->
+            <div id="email-view" class="hidden">
                  <div class="flex justify-between items-center border-b pb-3">
-                    <h3 class="text-xl font-bold">Redactar Correo Manualmente</h3>
+                    <h3 class="text-xl font-bold">Redactar Correo de Reporte</h3>
                     <button class="close-modal-btn text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
                 </div>
                 <div class="mt-4 space-y-4">
-                    <p class="text-sm text-gray-600">Su cliente de correo no se abrió automáticamente. Por favor, copie los siguientes datos para enviar el reporte manualmente.</p>
+                    <p class="text-sm text-gray-600">Tareas marcadas como cumplidas. Ahora, por favor envíe el reporte por correo. Use los botones para copiar la información.</p>
                     <div>
                         <label class="text-xs font-semibold text-gray-500">PARA:</label>
-                        <input id="email-recipient" type="text" readonly class="w-full bg-gray-100 border-gray-300 rounded-md p-2 mt-1 text-sm">
+                        <div class="flex items-center mt-1"><input id="email-recipient" type="text" readonly class="w-full bg-gray-100 border-gray-300 rounded-l-md p-2 text-sm"><button id="copy-recipient-btn" class="px-3 py-2 bg-gray-200 text-gray-800 text-xs rounded-r-md hover:bg-gray-300">Copiar</button></div>
                     </div>
                     <div>
                         <label class="text-xs font-semibold text-gray-500">ASUNTO:</label>
-                        <input id="email-subject" type="text" readonly class="w-full bg-gray-100 border-gray-300 rounded-md p-2 mt-1 text-sm">
+                         <div class="flex items-center mt-1"><input id="email-subject" type="text" readonly class="w-full bg-gray-100 border-gray-300 rounded-l-md p-2 text-sm"><button id="copy-subject-btn" class="px-3 py-2 bg-gray-200 text-gray-800 text-xs rounded-r-md hover:bg-gray-300">Copiar</button></div>
                     </div>
                     <div>
                         <label class="text-xs font-semibold text-gray-500">CUERPO DEL MENSAJE:</label>
@@ -237,32 +237,34 @@
                         <button id="copy-body-btn" class="mt-2 px-3 py-1 bg-gray-200 text-gray-800 text-xs rounded-md hover:bg-gray-300">Copiar Cuerpo</button>
                     </div>
                 </div>
+                <div class="mt-6 flex justify-end">
+                    <button class="close-modal-btn px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Finalizar</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const STORAGE_KEY = 'completedTasksCDQ_v2';
+            const STORAGE_KEY = 'completedTasksCDQ_v4';
 
             const generateReportBtn = document.getElementById('generate-report-btn');
             const reportModal = document.getElementById('report-modal');
             const modalContent = reportModal.querySelector('.modal-content');
             const resetTasksBtn = document.getElementById('reset-tasks-btn');
 
-            // Vistas del Modal
             const confirmationView = document.getElementById('confirmation-view');
-            const emailFallbackView = document.getElementById('email-fallback-view');
+            const emailView = document.getElementById('email-view');
             
-            // Elementos de la Vista de Confirmación
             const modalMessage = document.getElementById('modal-message');
             const selectedTasksList = document.getElementById('selected-tasks-list');
             const confirmReportBtn = document.getElementById('confirm-report-btn');
             
-            // Elementos de la Vista de Fallback
             const emailRecipient = document.getElementById('email-recipient');
             const emailSubject = document.getElementById('email-subject');
             const emailBody = document.getElementById('email-body');
+            const copyRecipientBtn = document.getElementById('copy-recipient-btn');
+            const copySubjectBtn = document.getElementById('copy-subject-btn');
             const copyBodyBtn = document.getElementById('copy-body-btn');
 
             const getCompletedTasks = () => JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -286,7 +288,7 @@
 
             const openModal = () => {
                 confirmationView.classList.remove('hidden');
-                emailFallbackView.classList.add('hidden');
+                emailView.classList.add('hidden');
                 reportModal.classList.remove('hidden');
                 setTimeout(() => {
                     reportModal.classList.remove('opacity-0');
@@ -300,6 +302,23 @@
                 setTimeout(() => reportModal.classList.add('hidden'), 300);
             };
 
+            const copyToClipboard = (element, button) => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(element.value).then(() => {
+                        const originalText = button.textContent;
+                        button.textContent = '¡Copiado!';
+                        setTimeout(() => { button.textContent = originalText; }, 2000);
+                    }).catch(err => console.error('Error al copiar:', err));
+                } else {
+                    // Fallback for older browsers
+                    element.select();
+                    document.execCommand('copy');
+                    const originalText = button.textContent;
+                    button.textContent = '¡Copiado!';
+                    setTimeout(() => { button.textContent = originalText; }, 2000);
+                }
+            };
+
             generateReportBtn.addEventListener('click', () => {
                 const checkedTasks = document.querySelectorAll('.task-checkbox:checked:not(:disabled)');
                 selectedTasksList.innerHTML = '';
@@ -308,7 +327,7 @@
                     modalMessage.textContent = 'No ha seleccionado nuevas tareas para reportar. Por favor, marque al menos una casilla.';
                     confirmReportBtn.classList.add('hidden');
                 } else {
-                    modalMessage.innerHTML = `<strong>¿Confirmar el cumplimiento de ${checkedTasks.length} tarea(s)?</strong><br>Una vez reportadas, quedarán guardadas como completas.`;
+                    modalMessage.innerHTML = `<strong>¿Confirmar el cumplimiento de ${checkedTasks.length} tarea(s)?</strong><br>Una vez confirmadas, quedarán guardadas como completas.`;
                     checkedTasks.forEach(task => {
                         const li = document.createElement('li');
                         li.textContent = task.value;
@@ -327,38 +346,27 @@
                 const today = new Date();
                 const dateString = today.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
 
-                const recipient = 'comitecumbresdequilpue@gmail.com';
+                const recipient = 'Comitecumbresdequilpue@gmail.com';
                 const subject = `Reporte de Cumplimiento - ${dateString}`;
                 const body = `Estimado Comité,\n\nJunto con saludar, se informa que con fecha ${dateString} se ha dado cumplimiento a las siguientes tareas:\n\n${tasksValues.join('\n')}\n\nSaludos cordiales.`;
-                const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 
-                // Save state FIRST
+                // Save state
                 const completedTasks = getCompletedTasks();
                 const newCompletedIds = Array.from(newlyCheckedTasks).map(task => task.id);
                 saveCompletedTasks([...new Set([...completedTasks, ...newCompletedIds])]);
                 applyCompletedState();
 
-                // Show fallback view
-                confirmationView.classList.add('hidden');
-                emailFallbackView.classList.remove('hidden');
+                // Populate and show email view
                 emailRecipient.value = recipient;
                 emailSubject.value = subject;
                 emailBody.value = body;
-
-                // Try to open email client
-                try {
-                     window.location.href = mailtoLink;
-                } catch (e) {
-                    console.error("Error opening mail client:", e);
-                }
+                confirmationView.classList.add('hidden');
+                emailView.classList.remove('hidden');
             });
 
-            copyBodyBtn.addEventListener('click', () => {
-                emailBody.select();
-                document.execCommand('copy');
-                copyBodyBtn.textContent = '¡Copiado!';
-                setTimeout(() => { copyBodyBtn.textContent = 'Copiar Cuerpo'; }, 2000);
-            });
+            copyRecipientBtn.addEventListener('click', () => copyToClipboard(emailRecipient, copyRecipientBtn));
+            copySubjectBtn.addEventListener('click', () => copyToClipboard(emailSubject, copySubjectBtn));
+            copyBodyBtn.addEventListener('click', () => copyToClipboard(emailBody, copyBodyBtn));
 
             resetTasksBtn.addEventListener('click', () => {
                 if (confirm('¿Está seguro de que desea reiniciar el estado de todas las tareas cumplidas? Esta acción borrará el historial guardado.')) {
@@ -367,11 +375,8 @@
                 }
             });
 
-            document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', closeModal));
-            document.querySelectorAll('.cancel-btn').forEach(btn => btn.addEventListener('click', closeModal));
-            reportModal.addEventListener('click', (e) => {
-                if (e.target === reportModal) closeModal();
-            });
+            document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => btn.addEventListener('click', closeModal));
+            reportModal.addEventListener('click', (e) => { if (e.target === reportModal) closeModal(); });
 
             // Initial load
             applyCompletedState();
