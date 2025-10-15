@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Tareas - Cumbres de Quilpué</title>
+    <title>Panel de Mando Estratégico - Cumbres de Quilpué</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -66,6 +66,13 @@
         .timeline-item:last-child::before {
             display: none;
         }
+        .deadline-circle {
+            flex-shrink: 0;
+            width: 3rem;
+            height: 1.75rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="antialiased text-gray-900">
@@ -74,9 +81,23 @@
         
         <!-- Cabecera -->
         <header class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Panel de Tareas</h1>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Panel de Mando Estratégico</h1>
             <p class="mt-3 text-xl text-gray-500">Cumbres de Quilpué</p>
             <p id="current-date" class="mt-2 text-sm text-gray-400"></p>
+            
+            <!-- Alerta de Vencimientos -->
+            <details class="relative inline-block text-left mt-4">
+                <summary class="flex items-center justify-center bg-yellow-100 text-yellow-800 rounded-full px-4 py-2 cursor-pointer hover:bg-yellow-200">
+                    <span class="text-xl mr-2">⚠️</span>
+                    <span class="font-semibold">Próximos Vencimientos</span>
+                </summary>
+                <div id="upcoming-tasks-list" class="origin-top-right absolute right-0 mt-2 w-72 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 text-left p-4 z-10">
+                    <p class="font-bold mb-2">5 Tareas más próximas a vencer:</p>
+                    <ul class="space-y-2 text-sm">
+                        <!-- Se llena con JS -->
+                    </ul>
+                </div>
+            </details>
         </header>
 
         <!-- Mapa de Prioridades de Torres -->
@@ -183,7 +204,7 @@
     </button>
     
     <!-- Modal para Copiar Correo -->
-    <div id="copy-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div id="copy-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-xl font-bold">Copiar Listado para Correo</h3>
@@ -191,7 +212,7 @@
             </div>
             <div class="mt-4">
                 <p class="text-sm text-gray-600 mb-2">El siguiente texto ha sido formateado para ser enviado por correo. Cópielo y péguelo en su cliente de correo.</p>
-                <textarea id="email-output" readonly rows="15" class="w-full bg-gray-100 border-gray-300 rounded-md p-2 text-xs"></textarea>
+                <textarea id="email-output" readonly rows="15" class="w-full bg-gray-100 border-gray-300 rounded-md p-2 text-xs font-mono"></textarea>
             </div>
             <div class="mt-6 flex justify-end">
                 <button id="copy-all-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Copiar Todo y Cerrar</button>
@@ -199,15 +220,14 @@
         </div>
     </div>
 
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
-            // Para asegurar la zona horaria de Chile, se puede usar una librería o un ajuste manual
-            // Para simplicidad, usaremos la fecha local del navegador, asumiendo que es correcta.
             document.getElementById('current-date').textContent = `Estado al: ${today.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })}`;
 
-            document.querySelectorAll('details.task-card').forEach(task => {
+            const allDetails = document.querySelectorAll('details.task-card');
+
+            allDetails.forEach(task => {
                 const status = task.dataset.status ? task.dataset.status.toUpperCase() : '';
                 const assignedDateStr = task.dataset.assigned;
                 const dueDateStr = task.dataset.due;
@@ -216,7 +236,7 @@
                 
                 let arrow = document.createElement('span');
                 arrow.className = 'details-arrow ml-auto text-gray-400 transform transition-transform';
-                arrow.innerHTML = '&#9662;'; // Flecha hacia abajo
+                arrow.innerHTML = '&#9662;';
                 summary.appendChild(arrow);
                 
                 let statusClass = '';
@@ -247,24 +267,53 @@
                     const [day, month, year] = dueDateStr.split('.').map(Number);
                     const dueDate = new Date(year, month - 1, day, 23, 59, 59);
                     
-                    if (dueDate < today) {
+                    const diffTime = dueDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let deadlineCircle = document.createElement('span');
+                    deadlineCircle.className = 'deadline-circle ml-4 rounded-full flex items-center justify-center';
+                    
+                    if (diffDays < 0) {
                         task.className = task.className.replace(/border-l-(green|yellow|blue)-[0-9]{3}/g, '');
                         task.classList.add('task-overdue');
-                        const diffTime = today - dueDate;
-                        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                        
-                        let delaySpan = summary.querySelector('.delay-span');
-                        if (!delaySpan) {
-                            delaySpan = document.createElement('span');
-                            delaySpan.className = 'delay-span ml-4 text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full whitespace-nowrap';
-                            arrow.before(delaySpan);
-                        }
-                        delaySpan.textContent = `${diffDays} día(s) de retraso`;
+                        deadlineCircle.classList.add('bg-red-500', 'text-white');
+                        deadlineCircle.textContent = `${diffDays}d`;
+                    } else {
+                        deadlineCircle.classList.add('bg-green-500', 'text-white');
+                        deadlineCircle.textContent = `+${diffDays}d`;
                     }
+                    arrow.before(deadlineCircle);
                 }
             });
 
-            const allDetails = document.querySelectorAll('details');
+            // Llenar lista de próximos vencimientos
+            const upcomingTasks = [];
+            document.querySelectorAll('details.task-card[data-due]').forEach(task => {
+                const [day, month, year] = task.dataset.due.split('.').map(Number);
+                const dueDate = new Date(year, month - 1, day, 23, 59, 59);
+                if (dueDate >= today) {
+                    const diffTime = dueDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    upcomingTasks.push({
+                        name: task.querySelector('summary span').textContent,
+                        days: diffDays
+                    });
+                }
+            });
+
+            upcomingTasks.sort((a, b) => a.days - b.days);
+            const upcomingList = document.getElementById('upcoming-tasks-list').querySelector('ul');
+            upcomingList.innerHTML = '';
+            upcomingTasks.slice(0, 5).forEach(task => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="font-semibold">${task.name}</span> - Vence en ${task.days} día(s)`;
+                upcomingList.appendChild(li);
+            });
+            if (upcomingTasks.length === 0) {
+                 upcomingList.innerHTML = '<li class="text-gray-500">No hay tareas próximas a vencer.</li>';
+            }
+
+
             allDetails.forEach(details => {
                 details.addEventListener('toggle', event => {
                     if (details.open) {
@@ -283,27 +332,26 @@
             const emailOutput = document.getElementById('email-output');
 
             const generateEmailText = () => {
-                let text = `Estimada Administración BP,\n\nJunto con saludar, y en seguimiento a nuestro último correo, detallamos el estado actual del Listado Maestro de Tareas Pendientes para el Condominio Cumbres de Quilpué.\n\n---\n\n`;
+                let text = `Estimada Administración BP,\n\nJunto con saludar, y en seguimiento a nuestro último correo, detallamos el estado actual del Listado Maestro de Tareas Pendientes para el Condominio Cumbres de Quilpué, actualizado al ${today.toLocaleDateString('es-CL')}.\n\n---\n\n`;
                 const sections = [
-                    { title: "🔴 TAREAS PRIORITARIAS", containerId: "task-container-A" },
-                    { title: "🟠 TRABAJOS NORMALES", containerId: "task-container-B" },
-                    { title: "🌐 PENDIENTES EN COMUNIDADFELIZ", containerId: "task-container-C" },
-                    { title: "🛠 TRABAJOS DE MANTENCIÓN PENDIENTES", containerId: "task-container-D" },
-                    { title: "❌️ EQUIPOS NO OPERATIVOS / EN REVISIÓN", containerId: "task-container-E" }
+                    { title: "🔴 TAREAS PRIORITARIAS", container: document.getElementById("task-container-A") },
+                    { title: "🟠 TRABAJOS NORMALES", container: document.getElementById("task-container-B") },
+                    { title: "🌐 PENDIENTES EN COMUNIDADFELIZ", container: document.getElementById("task-container-C") },
+                    { title: "🛠 TRABAJOS DE MANTENCIÓN PENDIENTES", container: document.getElementById("task-container-D") },
+                    { title: "❌️ EQUIPOS NO OPERATIVOS / EN REVISIÓN", container: document.getElementById("task-container-E") }
                 ];
 
                 sections.forEach(section => {
                     text += `${section.title}\n\n`;
-                    const container = document.getElementById(section.containerId);
-                    container.querySelectorAll('details').forEach(task => {
+                    section.container.querySelectorAll('details').forEach(task => {
                         const id = task.dataset.id;
-                        const title = task.querySelector('summary span').textContent;
+                        const title = task.querySelector('summary span.font-semibold').textContent;
                         const description = task.querySelector('.details-content p').textContent;
                         const status = `[${task.dataset.status}]`;
-                        const delaySpan = task.querySelector('.delay-span');
-                        const delayText = delaySpan ? ` - ${delaySpan.textContent.toUpperCase()}` : '';
+                        const deadlineCircle = task.querySelector('.deadline-circle');
+                        const deadlineText = deadlineCircle ? ` (${deadlineCircle.textContent})` : '';
 
-                        text += ` * ${id} - ${title}: ${status} ${description}${delayText}\n`;
+                        text += ` * ${id} - ${title}: ${status} ${description}${deadlineText}\n`;
                     });
                     text += '\n';
                 });
@@ -317,9 +365,7 @@
                 copyModal.classList.remove('hidden');
             });
             
-            closeCopyModalBtn.addEventListener('click', () => {
-                copyModal.classList.add('hidden');
-            });
+            closeCopyModalBtn.addEventListener('click', () => copyModal.classList.add('hidden'));
 
             copyAllBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(emailOutput.value).then(() => {
@@ -328,9 +374,7 @@
                         copyModal.classList.add('hidden');
                         copyAllBtn.textContent = 'Copiar Todo y Cerrar';
                     }, 1500);
-                }).catch(err => {
-                    alert('Error al copiar. Por favor, copie el texto manualmente.');
-                });
+                }).catch(() => alert('Error al copiar.'));
             });
 
         });
